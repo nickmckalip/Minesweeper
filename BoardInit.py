@@ -27,9 +27,9 @@ def initBoard (diff: str) -> list[list]:
         input: numMines(int) how many mines are on the board, boardSize(int) size of the board
         return: set with the locations of the mines on the board
         """
-        locs = set()
-        while len(locs) < numMines+1:
-            randomInt01 = random.random()
+        locs = set() #Randomly places mines, into the board 
+        while len(locs) < numMines+1: 
+            randomInt01 = random.random() 
             randomMineLoc = randomInt01 * boardSize
             locs.add(randomMineLoc)
 
@@ -53,8 +53,8 @@ def initBoard (diff: str) -> list[list]:
         numMines = 99
         numCells = numCols*numRows
 
-    board = []
-    for i in range(numRows):
+    board = [] #Creating 2D array full of Zeros
+    for i in range(numRows): 
         row = []
         for ii in range(numCols):
             row.append(0)
@@ -63,21 +63,23 @@ def initBoard (diff: str) -> list[list]:
 
     mineLocations = mineLoc(numMines, numCells) #Locations for the mines
 
-    for mine in mineLocations: #adding mines into indexes
+    for mine in mineLocations: #adding mines into indexes created randomly
         mineRow = mine // numRows
         mineCol = mine - (mineRow*numRows)
 
-        board[int(mineRow)][int(mineCol)] = -1 
+        board[int(mineRow)][int(mineCol)] = -1  #Mines are denoted by -1 in the board
 
-    for i in range(numRows):
+    #Goes through every index and adds up number of adjacent mines into square
+    for i in range(numRows): 
         for ii in range(numCols):
-            if board[i][ii] != -1:
+            if board[i][ii] != -1: #If index is not a mine
                 surroundingMines = 0
 
+                #indices of adjacent blocks
                 surroundingBlocks = [(i-1,ii-1),(i-1,ii),(i-1,ii+1),(i,ii+1),(i+1,ii+1),(i+1,ii),(i+1,ii-1),(i,ii-1)]
 
-                for block in surroundingBlocks:
-                    try:
+                for block in surroundingBlocks: 
+                    try: #Gets rid of index errors, so i don't have to code all the corner cases
                         if board[block[0]][block[1]] == -1:
                             surroundingMines +=1
                     except IndexError:
@@ -99,5 +101,3 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     board = initBoard(args.difficulty)
-
-    print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in board]))
