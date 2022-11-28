@@ -12,19 +12,24 @@ Constraints: Number of mines surrounding a square with a number and number of mi
 """
 
 
-def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[int]], numberMines: int, totalMines: int) -> Tuple[Optional[List[int]], int]:
+def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[tuple]], queue: List[tuple], numberMines: int, totalMines: int) -> Tuple[Optional[List[int]], int]:
     """Perform backtracking search on CSP
 
     Args:
-        adjacent (List[List[int]]): Indices of adjacent squares for each square
-        queue (Set[Tuple[int, int]]): Variable constraints; (x, y) indicates x must be consistent with y
-        domains (List[List[int]]): Domains for each variable
+        adjacent (List[List[List[tuple]]]): Indices of adjacent squares for each square
+        domains (List[List[tuple]]): Number of mines surrounding the index 
+        queue (List[tuple]): List of indices of the frontier (being all blocks that are next to uncovered blocks)
+        numberMines (int): number of mines currently on the board 
+        totalMines (int): total mines that can be placed on the board
 
     Returns:
         Tuple[Optional[List[int]], int]: Solution or None indicating no solution found and the number of recursive backtracking calls
     """ 
 
-    def backtrack(assignment: Dict[int, int]) -> Optional[Dict[int, int]]:
+    #where the bombs are
+    assignment = []
+
+    def backtrack(assignment: List[tuple]) -> Optional[Dict[int, int]]:
         """Backtrack search recursive function
 
         Args:
@@ -33,10 +38,52 @@ def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[int
         Returns:
             Optional[Dict[int, int]]: Valid assignment or None if assignment is inconsistent
         """
+        #check to see if complete 
+        if numberMines == totalMines:
+            return assignment
+        
+        removedBlocks = []
+        minesAdded = 0
+ 
+        minesAdded += 1 #number of mines added to board
+        block = queue.pop(0) #removing first part of queue
+        removedBlocks.append(block) #list of removed blocks
 
-        pass
+        numberMines += 1
 
-    pass
+        conflict = False
+
+        #iterating through whole list to see if new bomb is in neighborhood, if it is checks to see if adding it will ruin 
+        for row in adjacent:
+            for col in row:
+                if block in col:
+                    if domain[block[0]][block[1]][1] + 1 >= domain[block[0]][block[1]][0]:
+                        conflict = True
+
+        
+        if conflict == False:
+            domain[block[0]][block[1]][1] += 1 
+
+            result = assignment.append(block)
+
+            if result != None:
+                return assignment
+                        
+            else: 
+                for index in removedBlocks:
+                    domain[index[0]][index[1]][1] -= 1
+
+                removedBlocks.clear()    
+                numberMines -= minesAdded
+                minesAdded = 0
+
+                assignment.remove(block)
+        
+        return None
+
+    bombLocs = backtrack(assignment)
+
+    return bombLocs
 
 def minesweeper(board: List[List[int]], totalMines: int) -> List[List[int]]:
     """Solve minesweepr puzzle using backtracking search as far as it can go off of inferences
@@ -51,7 +98,7 @@ def minesweeper(board: List[List[int]], totalMines: int) -> List[List[int]]:
     numberMines = 0
     adjacent = [] #List of adjacent indices in a 2D matrix for each variable
     domain = [] #Number of surrounding mines for each variable
-    queue = []
+    queue = [] #list of frontier blocks
 
     for i in range(len(board)): 
 
@@ -61,7 +108,7 @@ def minesweeper(board: List[List[int]], totalMines: int) -> List[List[int]]:
 
         for ii in range(len(board[i])):
             adjacent[i].append([])
-            domain[i].append(0)
+            domain[i].append((0,0))
             if board[i][ii] == 9: #if block is a mine add to number of mines on board
                 numberMines += 1
 
@@ -79,9 +126,10 @@ def minesweeper(board: List[List[int]], totalMines: int) -> List[List[int]]:
                         pass
             
             #creating domains of each variable (How many bombs are currently surrounding)
+            domain[i][ii][0] = board[i][ii]
             for neighbor in adjacent[i][ii]:
                 if board[neighbor[0]][neighbor[1]] == 10:
-                    domain[i][ii] += 1
+                    domain[i][ii][1] += 1
 
             #Adding frontier blocks to queue 
             if board[i][ii] == 0:
@@ -94,16 +142,11 @@ def minesweeper(board: List[List[int]], totalMines: int) -> List[List[int]]:
                         queue.append((i,ii))
                     j+=1
                  
-    return backtracking_search((adjacent, domain, numberMines, totalMines))
+    return backtracking_search((adjacent, domain, queue, numberMines, totalMines))
 
 
 if __name__ == "__main__":
 
-    board = []
-    j = 0
-    for i in range(9):
-        board.append([])
-        for ii in range(9):
-            board[i].append(j)
-            j += 1
-    minesweeper(board, 2) #given the fake board which is a reference to the realboard, but is all 9s
+    board = [[1,1,9],[1,10,9],[2,9,9]]
+
+    print(minesweeper(board, 2)) #given the fake board which is a reference to the realboard, but is all 9s
