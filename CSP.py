@@ -51,31 +51,31 @@ def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[Lis
         nonlocal helper
         nonlocal removedBlocks
 
-        print("!!!!!!!!!!")
+        #print("!!!!!!!!!!")
 
+        #Checking to see that if a block is surrounded by knowns, that its domain is full
         allCheck = True
-        if len(queue) == helper:
-            for spot in queue:
-                if spot not in assignment:
-                    for i in range(len(adjacent)):
-                        for ii in range(len(adjacent[i])):
-                            if spot in adjacent[i][ii] and domain[i][ii][0] != domain[i][ii][1]:
-
-                                allCheck = False
+        if len(q) == len(removedBlocks):
+            for i in range(len(domain)):
+                for ii in range(len(domain[i])): 
+                    if domain[i][ii][0] < 9 and domain[i][ii][0] != domain[i][ii][1]: #Block is opened, and the domain is not full
+                        allCheck = False
 
 
-        if len(q) == helper and allCheck == True:
+        if len(q) == len(removedBlocks) and allCheck == True:
+            #print("--")
             return assignment
-        elif len(q) == helper and allCheck == False:
+        elif len(q) == len(removedBlocks) and allCheck == False:
+            #print("-+-+")
             return None
 
 
-        for block in q:
-            helper += 1
-            print(helper)
-            print(q)
-            print(removedBlocks)
-            print(assignment)
+        for block in queue:
+            #helper += 1
+            #print(helper)
+            #print(q)
+            #print(removedBlocks)
+            #print(assignment)
 
             removedBlocks.append(block) #list of removed blocks
             conflict = False
@@ -98,11 +98,11 @@ def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[Lis
                 numMines += 1
                 minesAdded += 1 #number of mines added to board for this run
 
-                q.remove(block)
+                #q.remove(block)
 
                 result = backtrack(assignment, q)
-                print("--")
-                print(result)
+                #print("--")
+                #print(result)
 
                 if result != None:
                     return assignment 
@@ -121,7 +121,7 @@ def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[Lis
 
             else:
                 
-                q.remove(block)
+                #q.remove(block)
 
                 result = backtrack(assignment, q)
 
@@ -132,7 +132,7 @@ def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[Lis
                     helper -=1 
                     removedBlocks.pop()
                 
-        print("!")
+        #print("!")
         return None
 
 
@@ -210,8 +210,8 @@ def minesweeper(board: List[List[int]], totalMines: int) -> List[List[int]]:
 
 if __name__ == "__main__":
 
-    board = [[1,1,9,9,9],
-             [2,9,9,9,9],
+    board = [[1,2,9,9,9],
+             [2,10,9,9,9],
              [2,9,9,9,9],
              [1,1,9,9,9]]
 
