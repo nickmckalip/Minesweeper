@@ -4,10 +4,15 @@ from typing import Dict, List, Optional, Set, Tuple
 from xmlrpc.client import boolean 
 import BoardInit as BI
 import copy
+import random
 """
 Variables: Squares on the Board
 Domains: 8 adjacent squares
 Constraints: Number of mines surrounding a square with a number and number of mines on the board
+********************
+Variable: Unopened Squares on board adjacent to opened ones 
+Domains: Bomb or not bomb
+Constraints: Number of Bombs on the board vs total bombs, number of bombs surrounding an opened block 
 
 
 """
@@ -27,14 +32,11 @@ def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[Lis
         Tuple[Optional[List[int]], int]: Solution or None indicating no solution found and the number of recursive backtracking calls
     """ 
     numMines = numMine
-    #where the bombs are
-    assignment = [] #0 = bomb, 1 = safe
-    minesAdded = 0
-
-    helper = 0
+    #where the bombs are (left a little up to chance)
+    assignment = []
     removedBlocks = []
 
-    def backtrack(assignment: List[tuple], q:List[tuple]) -> Optional[Dict[int, int]]:
+    def backtrack(assignment: List[tuple]) -> Optional[Dict[int, int]]:
         """Backtrack search recursive function
 
         Args:
@@ -43,39 +45,28 @@ def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[Lis
         Returns:
             Optional[Dict[int, int]]: Valid assignment or None if assignment is inconsistent
         """
-        #check to see if complete 
-
 
         nonlocal numMines
-        nonlocal minesAdded
-        nonlocal helper
         nonlocal removedBlocks
 
-        #print("!!!!!!!!!!")
 
         #Checking to see that if a block is surrounded by knowns, that its domain is full
         allCheck = True
-        if len(q) == len(removedBlocks):
+        if len(queue) == len(removedBlocks): #If all blocks have been removed
             for i in range(len(domain)):
                 for ii in range(len(domain[i])): 
                     if domain[i][ii][0] < 9 and domain[i][ii][0] != domain[i][ii][1]: #Block is opened, and the domain is not full
                         allCheck = False
 
 
-        if len(q) == len(removedBlocks) and allCheck == True:
-            #print("--")
+        #Check of completion
+        if (len(queue) == len(removedBlocks) and allCheck == True) or numMines == totalMines:
             return assignment
-        elif len(q) == len(removedBlocks) and allCheck == False:
-            #print("-+-+")
+        elif len(queue) == len(removedBlocks) and allCheck == False:
             return None
 
 
         for block in queue:
-            #helper += 1
-            #print(helper)
-            #print(q)
-            #print(removedBlocks)
-            #print(assignment)
 
             removedBlocks.append(block) #list of removed blocks
             conflict = False
@@ -96,22 +87,16 @@ def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[Lis
 
                 assignment.append(block)
                 numMines += 1
-                minesAdded += 1 #number of mines added to board for this run
 
-                #q.remove(block)
+                result = backtrack(assignment)
 
-                result = backtrack(assignment, q)
-                #print("--")
-                #print(result)
 
                 if result != None:
                     return assignment 
                 
                 else: 
-                    helper -=1 
                     assignment.remove(block) #removed assigned block in most recent 
                     numMines -= 1
-                    minesAdded -= 1
                     for i in range(len(adjacent)):
                         for ii in range(len(adjacent[i])):
                             if block in adjacent[i][ii]:
@@ -121,23 +106,19 @@ def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[Lis
 
             else:
                 
-                #q.remove(block)
-
-                result = backtrack(assignment, q)
+                result = backtrack(assignment)
 
                 if result != None:
                     return assignment 
                 
                 else: 
-                    helper -=1 
                     removedBlocks.pop()
                 
-        #print("!")
         return None
 
 
-    q = copy.deepcopy(queue)
-    bombLocs = backtrack(assignment, q)
+    
+    bombLocs = backtrack(assignment)
 
     return bombLocs
 
@@ -204,15 +185,57 @@ def minesweeper(board: List[List[int]], totalMines: int) -> List[List[int]]:
                 if t == True:
                     queue.append((i,ii))
 
+    """
+    newDomain = copy.deepcopy(domain) 
+    results = [backtracking_search(adjacent, newDomain, queue, numberMines, totalMines)]
+    newQ = []
+    for i in range(len(queue)):
+        newDomain = copy.deepcopy(domain)
+        if i == 0:
+            newQ = queue[1:]
+        elif i+1 == len(queue):
+            newQ = queue[:-1]
+        else:
+            newQ = queue[:i]+ queue[i+1:]
 
-    return backtracking_search(adjacent, domain, queue, numberMines, totalMines)
+        result = backtracking_search(adjacent, newDomain, newQ, numberMines, totalMines)
+        results.append(result)
+    """
+    results = []
+    i = 0
+    while i < 1000:
+        newDomain = copy.deepcopy(domain)
+        newQ = []
+
+        while len(newQ) < len(queue):
+            rand = random.randint(0,len(queue)-1)
+
+            if queue[rand] not in newQ:
+                newQ.append(queue[rand])
+        
+        result = backtracking_search(adjacent, newDomain, newQ, numberMines, totalMines)
+        results.append(result)
+        i += 1
+    
+
+    return results #backtracking_search(adjacent, domain, queue, numberMines, totalMines)
 
 
 if __name__ == "__main__":
 
-    board = [[1,2,9,9,9],
-             [2,10,9,9,9],
-             [2,9,9,9,9],
-             [1,1,9,9,9]]
+    board = [[1,10,9,9,9],
+             [2,3,9,9,9],
+             [1,10,9,9,9],
+             [1,2,9,9,9]]
 
-    print(minesweeper(board, 4)) 
+    #print(minesweeper(board, 8)) 
+    results = minesweeper(board, 8)
+    combinedOdds = {}
+    for result in results:
+        for block in result:
+            if block in combinedOdds:
+                combinedOdds[block] += 1
+            else:
+                combinedOdds[block] = 1
+
+    print(combinedOdds)
