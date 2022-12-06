@@ -79,11 +79,14 @@ def initBoard (diff: str) -> list[list]:
                 surroundingBlocks = [(i-1,ii-1),(i-1,ii),(i-1,ii+1),(i,ii+1),(i+1,ii+1),(i+1,ii),(i+1,ii-1),(i,ii-1)]
 
                 for block in surroundingBlocks: 
-                    try: #Gets rid of index errors, so i don't have to code all the corner cases
-                        if board[block[0]][block[1]] == -1:
-                            surroundingMines +=1
-                    except IndexError:
+                    if block[0] == -1 or block[1] == -1:
                         pass
+                    else:
+                        try: #Gets rid of index errors, so i don't have to code all the corner cases
+                            if board[block[0]][block[1]] == -1:
+                                surroundingMines +=1
+                        except IndexError:
+                            pass
                         
 
                 board[i][ii] = surroundingMines
