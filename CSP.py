@@ -130,7 +130,7 @@ def minesweeper(board: List[List[int]], totalMines: int) -> List[List[int]]:
         totalMines (int): total number of mines allowed
 
     Returns:
-        board List[[int]]: 2D array of minesweeper board solved as far as it could have been
+        returns a 2D array where each row is an array of the locations where the bombs is 
     """
     numberMines = 0
     adjacent = [] #List of adjacent indices in a 2D matrix for each variable
@@ -185,29 +185,13 @@ def minesweeper(board: List[List[int]], totalMines: int) -> List[List[int]]:
                 if t == True:
                     queue.append((i,ii))
 
-    """
-    newDomain = copy.deepcopy(domain) 
-    results = [backtracking_search(adjacent, newDomain, queue, numberMines, totalMines)]
-    newQ = []
-    for i in range(len(queue)):
-        newDomain = copy.deepcopy(domain)
-        if i == 0:
-            newQ = queue[1:]
-        elif i+1 == len(queue):
-            newQ = queue[:-1]
-        else:
-            newQ = queue[:i]+ queue[i+1:]
-
-        result = backtracking_search(adjacent, newDomain, newQ, numberMines, totalMines)
-        results.append(result)
-    """
     results = []
     i = 0
-    while i < 1000:
+    while i < 50: #randomizes intro order 50 times in order to see where bombs likely lie
         newDomain = copy.deepcopy(domain)
         newQ = []
 
-        while len(newQ) < len(queue):
+        while len(newQ) < len(queue): #Makes a random queue
             rand = random.randint(0,len(queue)-1)
 
             if queue[rand] not in newQ:
@@ -218,7 +202,7 @@ def minesweeper(board: List[List[int]], totalMines: int) -> List[List[int]]:
         i += 1
     
 
-    return results #backtracking_search(adjacent, domain, queue, numberMines, totalMines)
+    return results 
 
 
 if __name__ == "__main__":
