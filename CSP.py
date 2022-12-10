@@ -5,6 +5,7 @@ from xmlrpc.client import boolean
 import BoardInit as BI
 import copy
 import random
+import logic 
 """
 Variables: Squares on the Board
 Domains: 8 adjacent squares
@@ -35,6 +36,7 @@ def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[Lis
     #where the bombs are (left a little up to chance)
     assignment = []
     removedBlocks = []
+    num = 0
 
     def backtrack(assignment: List[tuple]) -> Optional[Dict[int, int]]:
         """Backtrack search recursive function
@@ -45,10 +47,13 @@ def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[Lis
         Returns:
             Optional[Dict[int, int]]: Valid assignment or None if assignment is inconsistent
         """
-
         nonlocal numMines
         nonlocal removedBlocks
+        nonlocal num
+        num +=1 
 
+        if num > 50000: #Cuts off search depth at random spot, so it can run not for a million years
+            return assignment
 
         #Checking to see that if a block is surrounded by knowns, that its domain is full
         allCheck = True
@@ -58,7 +63,7 @@ def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[Lis
                     if domain[i][ii][0] < 9 and domain[i][ii][0] != domain[i][ii][1]: #Block is opened, and the domain is not full
                         allCheck = False
 
-
+        #print(assignment)
         #Check of completion
         if (len(queue) == len(removedBlocks) and allCheck == True) or numMines == totalMines:
             return assignment
@@ -73,12 +78,15 @@ def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[Lis
 
             #iterating through whole list to see if new bomb is in neighborhood, if it is checks to see if adding it will ruin 
             for neighbor in adjacent[block[0]][block[1]]:
-                if domain[neighbor[0]][neighbor[1]][1] + 1 > domain[neighbor[0]][neighbor[1]][0]: #Checks to see if number of surrounding bombs exceeds limit
+                if block in assignment:
                     conflict = True
+                elif domain[neighbor[0]][neighbor[1]][1] + 1 > domain[neighbor[0]][neighbor[1]][0]: #Checks to see if number of surrounding bombs exceeds limit
+                    conflict = True
+                
 
             if totalMines < numMines:
                 conflict = True 
-
+            #print (conflict)
             if conflict == False:
                 for i in range(len(adjacent)):
                     for ii in range(len(adjacent[i])):
@@ -113,13 +121,14 @@ def backtracking_search(adjacent: List[List[List[tuple]]], domain: List[List[Lis
                 
                 else: 
                     removedBlocks.pop()
-                
+            
+
         return None
 
 
     
     bombLocs = backtrack(assignment)
-
+    #print(num)
     return bombLocs
 
 def minesweeper(board: List[List[int]], totalMines: int) -> List[List[int]]:
@@ -184,10 +193,9 @@ def minesweeper(board: List[List[int]], totalMines: int) -> List[List[int]]:
 
                 if t == True:
                     queue.append((i,ii))
-
     results = []
     i = 0
-    while i < 50: #randomizes intro order 50 times in order to see where bombs likely lie
+    while i < 20: #randomizes intro order n times in order to see where bombs likely lie
         newDomain = copy.deepcopy(domain)
         newQ = []
 
@@ -196,7 +204,7 @@ def minesweeper(board: List[List[int]], totalMines: int) -> List[List[int]]:
 
             if queue[rand] not in newQ:
                 newQ.append(queue[rand])
-        
+            
         result = backtracking_search(adjacent, newDomain, newQ, numberMines, totalMines)
         results.append(result)
         i += 1
@@ -207,19 +215,9 @@ def minesweeper(board: List[List[int]], totalMines: int) -> List[List[int]]:
 
 if __name__ == "__main__":
 
-    board = [[1,10,9,9,9],
-             [2,3,9,9,9],
-             [1,10,9,9,9],
-             [1,2,9,9,9]]
-
-    #print(minesweeper(board, 8)) 
-    results = minesweeper(board, 8)
-    combinedOdds = {}
-    for result in results:
-        for block in result:
-            if block in combinedOdds:
-                combinedOdds[block] += 1
-            else:
-                combinedOdds[block] = 1
-
-    print(combinedOdds)
+    board = [[0,1,9,9,9],
+            [0,2,9,9,9],
+            [0,2,9,9,9],
+            [0,2,9,9,9],
+            [1,2,9,9,9],
+            [9,9,9,9,9]]

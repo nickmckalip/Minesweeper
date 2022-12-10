@@ -14,7 +14,7 @@ import pandas as pd
 
 
 
-def initBoard (diff: str) -> list[list]:
+def initBoard (diff: str):
     """
     Setting up board 
     input: difficulty coded in
@@ -28,13 +28,13 @@ def initBoard (diff: str) -> list[list]:
         return: set with the locations of the mines on the board
         """
         locs = set() #Randomly places mines, into the board 
-        while len(locs) < numMines+1: 
+        while len(locs) < numMines: 
             randomInt01 = random.random() 
             randomMineLoc = randomInt01 * boardSize
-            locs.add(randomMineLoc)
+            locs.add(int(randomMineLoc))
 
         return(locs)
- 
+    
 
     if diff == "easy":
         numCols = 8
@@ -68,6 +68,10 @@ def initBoard (diff: str) -> list[list]:
         mineCol = mine - (mineRow*numRows)
 
         board[int(mineRow)][int(mineCol)] = -1  #Mines are denoted by -1 in the board
+    
+    #print(len(mineLocations))
+    #print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in board]))
+    #print("-----")
 
     #Goes through every index and adds up number of adjacent mines into square
     for i in range(numRows): 
@@ -90,6 +94,7 @@ def initBoard (diff: str) -> list[list]:
                         
 
                 board[i][ii] = surroundingMines
+
     return board
 
 
@@ -104,3 +109,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     board = initBoard(args.difficulty)
+    print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in board]))
