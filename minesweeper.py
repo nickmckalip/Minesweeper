@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
     #Run it n times
     while numberRuns < 1000:
-        difficulty = "easy"
+        difficulty = "hard"
 
         #Starting board where first guess is 0 
         hiddenBoard = bi.initBoard(difficulty)
@@ -144,7 +144,7 @@ if __name__ == "__main__":
             #If nothing is 100% 
             if newInfo == False:
                 #If q is too long just guess since 2^n options 
-                if len(q) > 5:
+                if len(q) > 3:
                     randomInt01 = random.random()
                     newIndex = int(randomInt01 * len(q))
                     safe.add(q[newIndex])
@@ -202,20 +202,5 @@ if __name__ == "__main__":
         print(numberRuns)
 
 
-    print("ACCURACY")
-    print(fail/numberRuns)
-
-    """
-    Easy: 
-    5 / 50,000 / 20 // 0.543 / 0.512 / 0.529 / 
-
-    7 / 50,000 / 20 // 0.533
-    3 / 50,000 / 20 // 0.513 
-
-    5 / 10,000 / 20 // 0.493
-    5 / 75,000 / 20 // 0.526
-
-    5 / 50,000 / 10 // 0.516
-    5 / 50,000 / 100 // 0.537
-    
-    """
+    print("Got Right")
+    print((numberRuns-fail)/numberRuns)

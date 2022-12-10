@@ -64,14 +64,11 @@ def initBoard (diff: str):
     mineLocations = mineLoc(numMines, numCells) #Locations for the mines
 
     for mine in mineLocations: #adding mines into indexes created randomly
-        mineRow = mine // numRows
-        mineCol = mine - (mineRow*numRows)
+        mineRow = mine // numCols
+        mineCol = mine - (mineRow*numCols)
 
         board[int(mineRow)][int(mineCol)] = -1  #Mines are denoted by -1 in the board
-    
-    #print(len(mineLocations))
-    #print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in board]))
-    #print("-----")
+
 
     #Goes through every index and adds up number of adjacent mines into square
     for i in range(numRows): 
